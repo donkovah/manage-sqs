@@ -1,7 +1,12 @@
 package main
 
 import (
+	"be/src/app/routes"
+	"be/src/infrastructure/config"
+	"fmt"
+
 	"github.com/gin-gonic/gin"
+	_ "github.com/sakirsensoy/genv/dotenv/autoload"
 	"gorm.io/gorm"
 )
 
@@ -12,12 +17,13 @@ type Product struct {
 }
 
 func main() {
+	config.LoadConfig()
+
 	r := gin.Default()
-	r.GET("/", func(c *gin.Context) {
-		// Read
-		c.JSON(200, gin.H{
-			"message": "pong",
-		})
-	})
-	r.Run() // listen and serve on 0.0.0.0:8080
+	routes.InitRoutes(r)
+
+	// Listen and serve on the specified port
+	if err := r.Run(fmt.Sprintf(":%d", config.App.Port)); err != nil {
+		panic(err)
+	}
 }

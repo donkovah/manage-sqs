@@ -9,10 +9,9 @@ import (
 type Task struct {
 	gorm.Model
 	Title       string `gorm:"not null"`
-	Description string
-	UserID      uint `gorm:"not null"`
-	ProjectID   uint
+	Description string `gorm:"not null"`
+	ProjectID   uint   `gorm:"not null"`
+	Status      string `gorm:"not null"`
 	Deadline    *time.Time
-	StatusID    uint      `gorm:"not null"`
 	TaskLogs    []TaskLog `gorm:"foreignkey:TaskID"`
 }
