@@ -18,7 +18,7 @@ func NewProjectController(repo repository.ProjectRepository) *ProjectController 
 	return &ProjectController{repo: repo}
 }
 
-func (pc *ProjectController) GetProduct(c *gin.Context) {
+func (pc *ProjectController) GetProject(c *gin.Context) {
 	id := c.Param("id")
 
 	project, err := pc.repo.GetProject(context.Background(), id)
@@ -29,7 +29,7 @@ func (pc *ProjectController) GetProduct(c *gin.Context) {
 	c.JSON(http.StatusOK, project)
 }
 
-func (pc *ProjectController) GetProducts(c *gin.Context) {
+func (pc *ProjectController) GetProjects(c *gin.Context) {
 	projects, err := pc.repo.GetProjects(context.Background())
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -53,7 +53,7 @@ func (pc *ProjectController) CreateProject(c *gin.Context) {
 	c.JSON(http.StatusCreated, createdProject)
 }
 
-func (pc *ProjectController) UpdateProduct(c *gin.Context) {
+func (pc *ProjectController) UpdateProject(c *gin.Context) {
 	idStr := c.Param("id") // ID from URL parameters
 
 	// Convert string ID to uint64
@@ -81,7 +81,7 @@ func (pc *ProjectController) UpdateProduct(c *gin.Context) {
 	c.JSON(http.StatusOK, updatedProject)
 }
 
-func (pc *ProjectController) DeleteProduct(c *gin.Context) {
+func (pc *ProjectController) DeleteProject(c *gin.Context) {
 	id := c.Param("id")
 
 	if err := pc.repo.DeleteProject(context.Background(), id); err != nil {

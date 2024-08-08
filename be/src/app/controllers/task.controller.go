@@ -1,27 +1,83 @@
 package controllers
 
 import (
+	"be/src/domain/models"
+	"be/src/domain/repository"
+	"context"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
-func GetTask(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{"message": "Read one from Tasks"})
+type TaskController struct {
+	repo repository.TaskRepository
 }
 
-func GetTasks(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{"message": "Read all from Tasks"})
+func NewTaskController(repo repository.TaskRepository) *TaskController {
+	return &TaskController{repo: repo}
+}
+func (tc *TaskController) GetTask(c *gin.Context) {
+	id := c.Param("id")
+	task, err := tc.repo.GetTask(context.Background(), id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get task"})
+	}
+	c.JSON(http.StatusOK, task)
 }
 
-func CreateTask(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{"message": "POST to Tasks"})
+func (tc TaskController) GetTasks(c *gin.Context) {
+	tasks, err := tc.repo.GetTasks(context.Background())
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Failed to fetch task"})
+	}
+	c.JSON(http.StatusOK, tasks)
 }
 
-func UpdateTask(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{"message": "PATCH one fromTasks"})
+func (tc TaskController) CreateTask(c *gin.Context) {
+	var task models.Task
+	if err := c.ShouldBindJSON(&task); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	createdTask, err := tc.repo.CreateTask(context.Background(), &task)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create task"})
+	}
+
+	c.JSON(http.StatusOK, createdTask)
 }
 
-func DeleteTask(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{"message": "DELETE one from Tasks"})
+func (tc TaskController) UpdateTask(c *gin.Context) {
+	id := c.Param("id")
+	var taskBody *models.Task
+
+	if err := c.ShouldBindJSON(&taskBody); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	task, err := tc.repo.GetTask(context.Background(), id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch task"})
+	}
+	task.Title = taskBody.Title
+	task.Status = taskBody.Status
+	task.Description = taskBody.Description
+	task.Deadline = taskBody.Deadline
+
+	updatedTask, err := tc.repo.UpdateTask(context.Background(), task)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update task"})
+	}
+
+	c.JSON(http.StatusOK, updatedTask)
+}
+
+func (ts TaskController) DeleteTask(c *gin.Context) {
+	id := c.Param(("id"))
+	err := ts.repo.DeleteTask(context.Background(), id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete task"})
+	}
+	c.JSON(http.StatusNoContent, nil)
 }
