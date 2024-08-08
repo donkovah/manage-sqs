@@ -2,7 +2,7 @@ package controllers
 
 import (
 	"be/src/domain/models"
-	"be/src/domain/repository"
+	"be/src/domain/service"
 	"context"
 	"net/http"
 	"strconv"
@@ -11,17 +11,17 @@ import (
 )
 
 type ProjectController struct {
-	repo repository.ProjectRepository
+	service *service.ProjectService
 }
 
-func NewProjectController(repo repository.ProjectRepository) *ProjectController {
-	return &ProjectController{repo: repo}
+func NewProjectController(service *service.ProjectService) *ProjectController {
+	return &ProjectController{service: service}
 }
 
 func (pc *ProjectController) GetProject(c *gin.Context) {
 	id := c.Param("id")
 
-	project, err := pc.repo.GetProject(context.Background(), id)
+	project, err := pc.service.GetProject(context.Background(), id)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -30,7 +30,7 @@ func (pc *ProjectController) GetProject(c *gin.Context) {
 }
 
 func (pc *ProjectController) GetProjects(c *gin.Context) {
-	projects, err := pc.repo.GetProjects(context.Background())
+	projects, err := pc.service.GetProjects(context.Background())
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -45,7 +45,7 @@ func (pc *ProjectController) CreateProject(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	createdProject, err := pc.repo.CreateProject(context.Background(), &project)
+	createdProject, err := pc.service.CreateProject(context.Background(), &project)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -73,7 +73,7 @@ func (pc *ProjectController) UpdateProject(c *gin.Context) {
 	}
 	project.ID = id // Set the ID for the update
 
-	updatedProject, err := pc.repo.UpdateProject(context.Background(), &project)
+	updatedProject, err := pc.service.UpdateProject(context.Background(), &project)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -84,7 +84,7 @@ func (pc *ProjectController) UpdateProject(c *gin.Context) {
 func (pc *ProjectController) DeleteProject(c *gin.Context) {
 	id := c.Param("id")
 
-	if err := pc.repo.DeleteProject(context.Background(), id); err != nil {
+	if err := pc.service.DeleteProject(context.Background(), id); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}

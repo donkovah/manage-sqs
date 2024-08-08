@@ -2,20 +2,14 @@ package routes
 
 import (
 	"be/src/app/controllers"
-	"be/src/domain/repository"
-	"be/src/infrastructure/config"
+	"be/src/domain/service"
 
 	"github.com/gin-gonic/gin"
 )
 
-func InitRoutes(r *gin.Engine) {
-	// Create repository instance
-	projectRepo := repository.NewProjectRepository(config.DB)
-	taskRepo := repository.NewTaskRepository(config.DB)
-
-	// Create controller instance with injected repository
-	projectController := controllers.NewProjectController(projectRepo)
-	taskController := controllers.NewTaskController(taskRepo)
+func InitRoutes(r *gin.Engine, projectService *service.ProjectService, taskService *service.TaskService) {
+	projectController := controllers.NewProjectController(projectService)
+	taskController := controllers.NewTaskController(taskService)
 
 	v1 := r.Group("/v1")
 

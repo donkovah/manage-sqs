@@ -2,7 +2,7 @@ package controllers
 
 import (
 	"be/src/domain/models"
-	"be/src/domain/repository"
+	"be/src/domain/service"
 	"context"
 	"net/http"
 
@@ -10,15 +10,15 @@ import (
 )
 
 type TaskController struct {
-	repo repository.TaskRepository
+	service *service.TaskService
 }
 
-func NewTaskController(repo repository.TaskRepository) *TaskController {
-	return &TaskController{repo: repo}
+func NewTaskController(service *service.TaskService) *TaskController {
+	return &TaskController{service: service}
 }
 func (tc *TaskController) GetTask(c *gin.Context) {
 	id := c.Param("id")
-	task, err := tc.repo.GetTask(context.Background(), id)
+	task, err := tc.service.GetTask(context.Background(), id)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get task"})
 	}
@@ -26,7 +26,7 @@ func (tc *TaskController) GetTask(c *gin.Context) {
 }
 
 func (tc TaskController) GetTasks(c *gin.Context) {
-	tasks, err := tc.repo.GetTasks(context.Background())
+	tasks, err := tc.service.GetTasks(context.Background())
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Failed to fetch task"})
 	}
@@ -39,7 +39,7 @@ func (tc TaskController) CreateTask(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	createdTask, err := tc.repo.CreateTask(context.Background(), &task)
+	createdTask, err := tc.service.CreateTask(context.Background(), &task)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create task"})
 	}
@@ -56,7 +56,7 @@ func (tc TaskController) UpdateTask(c *gin.Context) {
 		return
 	}
 
-	task, err := tc.repo.GetTask(context.Background(), id)
+	task, err := tc.service.GetTask(context.Background(), id)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch task"})
 	}
@@ -65,7 +65,7 @@ func (tc TaskController) UpdateTask(c *gin.Context) {
 	task.Description = taskBody.Description
 	task.Deadline = taskBody.Deadline
 
-	updatedTask, err := tc.repo.UpdateTask(context.Background(), task)
+	updatedTask, err := tc.service.UpdateTask(context.Background(), task)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update task"})
 	}
@@ -75,7 +75,7 @@ func (tc TaskController) UpdateTask(c *gin.Context) {
 
 func (ts TaskController) DeleteTask(c *gin.Context) {
 	id := c.Param(("id"))
-	err := ts.repo.DeleteTask(context.Background(), id)
+	err := ts.service.DeleteTask(context.Background(), id)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete task"})
 	}
