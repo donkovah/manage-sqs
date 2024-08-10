@@ -39,8 +39,22 @@ func main() {
 
 	projectService := service.NewProjectService(persistence.NewProjectRepository(config.DB))
 	taskService := service.NewTaskService(persistence.NewTaskRepository(config.DB))
+	authService := service.NewAuthService(persistence.NewUserRepository(config.DB))
+	commentService := service.NewCommentService(persistence.NewCommentRepository(config.DB))
+	noteService := service.NewNoteService(persistence.NewNoteRepository(config.DB))
+	timelineService := service.NewTimelineService(persistence.NewTimelineRepository(config.DB))
+	userService := service.NewUserService(persistence.NewUserRepository(config.DB))
 
-	routes.InitRoutes(r, projectService, taskService)
+	routes.InitRoutes(
+		r,
+		projectService,
+		taskService,
+		authService,
+		commentService,
+		noteService,
+		timelineService,
+		userService,
+	)
 
 	// Listen and serve on the specified port
 	if err := r.Run(fmt.Sprintf(":%d", config.App.Port)); err != nil {

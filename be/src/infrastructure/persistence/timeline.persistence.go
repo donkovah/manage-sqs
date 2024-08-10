@@ -18,40 +18,40 @@ func NewTimelineRepository(db *gorm.DB) repository.TimelineRepository {
 }
 
 func (r *TimelineRepositoryImpl) GetTimelines(ctx context.Context) ([]models.Timeline, error) {
-	var projects []models.Timeline
-	result := r.db.WithContext(ctx).Find(&projects)
+	var timelines []models.Timeline
+	result := r.db.WithContext(ctx).Find(&timelines)
 	if result.Error != nil {
 		return nil, result.Error
 	}
-	return projects, nil
+	return timelines, nil
 }
 
 func (r *TimelineRepositoryImpl) GetTimeline(ctx context.Context, id string) (*models.Timeline, error) {
-	var project models.Timeline
-	result := r.db.WithContext(ctx).First(&project, id)
+	var timeline models.Timeline
+	result := r.db.WithContext(ctx).First(&timeline, id)
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		return nil, nil
 	}
 	if result.Error != nil {
 		return nil, result.Error
 	}
-	return &project, nil
+	return &timeline, nil
 }
 
-func (r *TimelineRepositoryImpl) CreateTimeline(ctx context.Context, project *models.Timeline) (*models.Timeline, error) {
-	result := r.db.WithContext(ctx).Create(project)
+func (r *TimelineRepositoryImpl) CreateTimeline(ctx context.Context, timeline *models.Timeline) (*models.Timeline, error) {
+	result := r.db.WithContext(ctx).Create(timeline)
 	if result.Error != nil {
 		return nil, result.Error
 	}
-	return project, nil
+	return timeline, nil
 }
 
-func (r *TimelineRepositoryImpl) UpdateTimeline(ctx context.Context, project *models.Timeline) (*models.Timeline, error) {
-	result := r.db.WithContext(ctx).Save(project)
+func (r *TimelineRepositoryImpl) UpdateTimeline(ctx context.Context, timeline *models.Timeline) (*models.Timeline, error) {
+	result := r.db.WithContext(ctx).Save(timeline)
 	if result.Error != nil {
 		return nil, result.Error
 	}
-	return project, nil
+	return timeline, nil
 }
 
 func (r *TimelineRepositoryImpl) DeleteTimeline(ctx context.Context, id string) error {
