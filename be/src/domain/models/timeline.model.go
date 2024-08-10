@@ -1,7 +1,8 @@
 package models
 
-type Note struct {
+type Timeline struct {
 	BaseModel
 	Name        string `gorm:"not null"`
 	Description string
+	Comment     []Comment
 }
