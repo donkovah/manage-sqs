@@ -74,9 +74,9 @@ func initDB() error {
 
 	// Apply migrations
 	if err := db.AutoMigrate(
-		&models.Task{},
-		&models.Project{},
 		&models.User{},
+		&models.Project{},
+		&models.Task{},
 		&models.Note{},
 		&models.Timeline{},
 		&models.Comment{},

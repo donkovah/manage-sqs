@@ -6,11 +6,12 @@ import (
 	"be/src/infrastructure/config"
 	"be/src/infrastructure/persistence"
 	"fmt"
-	"log"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/sakirsensoy/genv/dotenv/autoload"
 	"gorm.io/gorm"
+
+	log "github.com/sirupsen/logrus"
 )
 
 type Product struct {
@@ -20,6 +21,10 @@ type Product struct {
 }
 
 func main() {
+	log.SetFormatter(&log.TextFormatter{
+		FullTimestamp: true,
+	})
+
 	// Load application configuration
 	if err := config.LoadConfig(); err != nil {
 		log.Fatalf("Failed to load config: %v", err)

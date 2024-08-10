@@ -5,9 +5,9 @@ import (
 	"be/src/domain/service"
 	"context"
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 type ProjectController struct {
@@ -54,24 +54,19 @@ func (pc *ProjectController) CreateProject(c *gin.Context) {
 }
 
 func (pc *ProjectController) UpdateProject(c *gin.Context) {
-	idStr := c.Param("id") // ID from URL parameters
-
-	// Convert string ID to uint64
-	productID, err := strconv.ParseUint(idStr, 10, 64)
+	productID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID format"})
 		return
 	}
-
-	// Convert uint64 to uint
-	id := uint(productID)
 
 	var project models.Project
 	if err := c.ShouldBindJSON(&project); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	project.ID = id // Set the ID for the update
+
+	project.ID = productID // Set the ID for the update
 
 	updatedProject, err := pc.service.UpdateProject(context.Background(), &project)
 	if err != nil {
