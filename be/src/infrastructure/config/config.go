@@ -73,7 +73,15 @@ func initDB() error {
 	}
 
 	// Apply migrations
-	if err := db.AutoMigrate(&models.Task{}, &models.Project{}, &models.TaskLog{}, &models.Note{}); err != nil {
+	if err := db.AutoMigrate(
+		&models.Task{},
+		&models.Project{},
+		&models.User{},
+		&models.Note{},
+		&models.Timeline{},
+		&models.Comment{},
+		&models.Status{},
+	); err != nil {
 		return fmt.Errorf("could not migrate database: %v", err)
 	}
 
