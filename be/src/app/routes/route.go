@@ -60,7 +60,7 @@ func InitRoutes(
 		taskRoute.GET("/", taskController.GetTasks)
 		taskRoute.POST("/", taskController.CreateTask)
 		taskRoute.PUT("/:id", taskController.UpdateTask)
-		taskRoute.PATCH("/:id/status", taskController.GetTask)
+		taskRoute.PATCH("/:id/status", taskController.UpdateStatus)
 		taskRoute.DELETE("/:id", taskController.DeleteTask)
 	}
 

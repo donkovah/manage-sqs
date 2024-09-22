@@ -13,6 +13,7 @@ type Task struct {
 	ProjectID   uuid.UUID `gorm:"not null"`
 	UserID      uuid.UUID `gorm:"null"`
 	Status      string    `gorm:"not null"`
+	CompletedAt time.Time `gorm:"null"`
 	Deadline    *time.Time
 	Project     Project
 	User        User

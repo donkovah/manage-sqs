@@ -5,6 +5,7 @@ import (
 	"be/src/domain/service"
 	"context"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -64,6 +65,48 @@ func (tc TaskController) UpdateTask(c *gin.Context) {
 	task.Status = taskBody.Status
 	task.Description = taskBody.Description
 	task.Deadline = taskBody.Deadline
+
+	updatedTask, err := tc.service.UpdateTask(context.Background(), task)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update task"})
+	}
+
+	c.JSON(http.StatusOK, updatedTask)
+}
+
+func (tc TaskController) UpdateStatus(c *gin.Context) {
+	taskId := c.Param("taskId")
+	task, err := tc.service.GetTask(context.Background(), taskId)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch task"})
+		return
+	}
+	var taskBody *models.Task
+
+	if err := c.ShouldBindJSON(&taskBody); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	task.Status = taskBody.Status
+	updatedTask, err := tc.service.UpdateTask(context.Background(), task)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update task"})
+	}
+
+	c.JSON(http.StatusOK, updatedTask)
+}
+
+func (tc TaskController) CompleteTask(c *gin.Context) {
+	taskId := c.Param("taskId")
+	task, err := tc.service.GetTask(context.Background(), taskId)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch task"})
+		return
+	}
+
+	task.Status = "Completed"
+	task.CompletedAt = time.Now()
 
 	updatedTask, err := tc.service.UpdateTask(context.Background(), task)
 	if err != nil {
