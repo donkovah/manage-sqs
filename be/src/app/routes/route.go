@@ -60,8 +60,10 @@ func InitRoutes(
 		taskRoute.GET("/", taskController.GetTasks)
 		taskRoute.POST("/", taskController.CreateTask)
 		taskRoute.PUT("/:id", taskController.UpdateTask)
-		taskRoute.PATCH("/:id/status", taskController.UpdateStatus)
 		taskRoute.DELETE("/:id", taskController.DeleteTask)
+		taskRoute.PATCH("/:id/start", taskController.StartTask)
+		taskRoute.PATCH("/:id/block", taskController.BlockTask)
+		taskRoute.PATCH("/:id/complete", taskController.CompleteTask)
 	}
 
 	noteRoute := v1.Group("/notes")

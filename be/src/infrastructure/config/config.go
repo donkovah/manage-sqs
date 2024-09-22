@@ -80,7 +80,6 @@ func initDB() error {
 		&models.Note{},
 		&models.Timeline{},
 		&models.Comment{},
-		&models.Status{},
 	); err != nil {
 		return fmt.Errorf("could not migrate database: %v", err)
 	}

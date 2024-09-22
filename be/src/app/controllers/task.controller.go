@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"be/src/app/structs"
 	"be/src/domain/models"
 	"be/src/domain/service"
 	"context"
@@ -11,11 +12,15 @@ import (
 )
 
 type TaskController struct {
-	service *service.TaskService
+	service   *service.TaskService
+	validator *structs.TaskValidator
 }
 
 func NewTaskController(service *service.TaskService) *TaskController {
-	return &TaskController{service: service}
+	return &TaskController{
+		service:   service,
+		validator: structs.NewTaskValidator(),
+	}
 }
 func (tc *TaskController) GetTask(c *gin.Context) {
 	id := c.Param("id")
@@ -40,9 +45,19 @@ func (tc TaskController) CreateTask(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+
+	// Validate
+	validationErr := tc.validator.Validate(structs.MapModelTaskToStructsTask(&task))
+	if validationErr != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": validationErr.Error()})
+		return
+	}
+	task.Status = models.StatusTodo
+
 	createdTask, err := tc.service.CreateTask(context.Background(), &task)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create task"})
+		return
 	}
 
 	c.JSON(http.StatusOK, createdTask)
@@ -62,7 +77,6 @@ func (tc TaskController) UpdateTask(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch task"})
 	}
 	task.Title = taskBody.Title
-	task.Status = taskBody.Status
 	task.Description = taskBody.Description
 	task.Deadline = taskBody.Deadline
 
@@ -74,7 +88,7 @@ func (tc TaskController) UpdateTask(c *gin.Context) {
 	c.JSON(http.StatusOK, updatedTask)
 }
 
-func (tc TaskController) UpdateStatus(c *gin.Context) {
+func (tc TaskController) StartTask(c *gin.Context) {
 	taskId := c.Param("taskId")
 	task, err := tc.service.GetTask(context.Background(), taskId)
 	if err != nil {
@@ -88,7 +102,26 @@ func (tc TaskController) UpdateStatus(c *gin.Context) {
 		return
 	}
 
-	task.Status = taskBody.Status
+	task.Status = models.StatusTodo
+	updatedTask, err := tc.service.UpdateTask(context.Background(), task)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update task"})
+	}
+
+	c.JSON(http.StatusOK, updatedTask)
+}
+
+func (tc TaskController) BlockTask(c *gin.Context) {
+	taskId := c.Param("taskId")
+	task, err := tc.service.GetTask(context.Background(), taskId)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch task"})
+		return
+	}
+
+	task.Status = models.StatusBlocked
+	task.CompletedAt = time.Now()
+
 	updatedTask, err := tc.service.UpdateTask(context.Background(), task)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update task"})
@@ -105,7 +138,7 @@ func (tc TaskController) CompleteTask(c *gin.Context) {
 		return
 	}
 
-	task.Status = "Completed"
+	task.Status = models.StatusCompleted
 	task.CompletedAt = time.Now()
 
 	updatedTask, err := tc.service.UpdateTask(context.Background(), task)
