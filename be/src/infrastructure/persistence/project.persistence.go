@@ -28,7 +28,19 @@ func (r *ProjectRepositoryImpl) GetProjects(ctx context.Context) ([]models.Proje
 
 func (r *ProjectRepositoryImpl) GetProject(ctx context.Context, id string) (*models.Project, error) {
 	var project models.Project
-	result := r.db.WithContext(ctx).First(&project, id)
+	result := r.db.WithContext(ctx).Preload("Tasks", "status != (?)", "Complete").First(&project, "id = ?", id)
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		return nil, nil
+	}
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return &project, nil
+}
+
+func (r *ProjectRepositoryImpl) GetProjectWithAllTasks(ctx context.Context, id string) (*models.Project, error) {
+	var project models.Project
+	result := r.db.WithContext(ctx).Preload("Tasks").First(&project, "id = ?", id)
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		return nil, nil
 	}
@@ -55,7 +67,7 @@ func (r *ProjectRepositoryImpl) UpdateProject(ctx context.Context, project *mode
 }
 
 func (r *ProjectRepositoryImpl) DeleteProject(ctx context.Context, id string) error {
-	result := r.db.WithContext(ctx).Delete(&models.Project{}, id)
+	result := r.db.WithContext(ctx).Delete(&models.Project{}, "id = ?", id)
 	if result.Error != nil {
 		return result.Error
 	}

@@ -5,20 +5,14 @@ import (
 	"be/src/domain/service"
 	"be/src/infrastructure/config"
 	"be/src/infrastructure/persistence"
+	infraService "be/src/infrastructure/service"
 	"fmt"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/sakirsensoy/genv/dotenv/autoload"
-	"gorm.io/gorm"
 
 	log "github.com/sirupsen/logrus"
 )
-
-type Product struct {
-	gorm.Model
-	Code  string
-	Price uint
-}
 
 func main() {
 	log.SetFormatter(&log.TextFormatter{
@@ -39,7 +33,7 @@ func main() {
 
 	projectService := service.NewProjectService(persistence.NewProjectRepository(config.DB))
 	taskService := service.NewTaskService(persistence.NewTaskRepository(config.DB))
-	authService := service.NewAuthService(persistence.NewUserRepository(config.DB))
+	authService := service.NewAuthService(infraService.NewAuthService(persistence.NewUserRepository(config.DB), config.App.JWTSecret))
 	commentService := service.NewCommentService(persistence.NewCommentRepository(config.DB))
 	noteService := service.NewNoteService(persistence.NewNoteRepository(config.DB))
 	timelineService := service.NewTimelineService(persistence.NewTimelineRepository(config.DB))

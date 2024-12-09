@@ -20,6 +20,7 @@ type appConfig struct {
 	DBUser     string
 	DBPassword string
 	DBName     string
+	JWTSecret  string
 }
 
 var (
@@ -45,6 +46,7 @@ func LoadConfig() error {
 			DBUser:     genv.Key("DB_USER").Default("gorm").String(),
 			DBName:     genv.Key("DB_NAME").Default("gorm").String(),
 			DBPassword: genv.Key("DB_PASSWORD").String(),
+			JWTSecret:  genv.Key("JWT_SECRET").String(),
 		}
 
 		// Validate critical environment variables

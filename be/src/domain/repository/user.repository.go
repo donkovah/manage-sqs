@@ -11,4 +11,5 @@ type UserRepository interface {
 	CreateUser(ctx context.Context, timeline *models.User) (*models.User, error)
 	UpdateUser(ctx context.Context, timeline *models.User) (*models.User, error)
 	DeleteUser(ctx context.Context, id string) error
+	GetUserByEmail(ctx context.Context, email string) (*models.User, error)
 }

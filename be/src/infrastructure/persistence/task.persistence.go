@@ -18,32 +18,35 @@ func NewTaskRepository(db *gorm.DB) repository.TaskRepository {
 }
 
 func (r *TaskRepositoryImpl) GetTasks(ctx context.Context) ([]models.Task, error) {
-	var projects []models.Task
-	result := r.db.WithContext(ctx).Find(&projects)
+	var tasks []models.Task
+	result := r.db.WithContext(ctx).Find(&tasks)
 	if result.Error != nil {
 		return nil, result.Error
 	}
-	return projects, nil
+	return tasks, nil
 }
 
 func (r *TaskRepositoryImpl) GetTask(ctx context.Context, id string) (*models.Task, error) {
-	var project models.Task
-	result := r.db.WithContext(ctx).First(&project, id)
+	var task models.Task
+	result := r.db.WithContext(ctx).First(&task, "id = ?", id)
+
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		return nil, nil
 	}
 	if result.Error != nil {
 		return nil, result.Error
 	}
-	return &project, nil
+
+	return &task, nil
 }
 
-func (r *TaskRepositoryImpl) CreateTask(ctx context.Context, project *models.Task) (*models.Task, error) {
-	result := r.db.WithContext(ctx).Create(project)
+func (r *TaskRepositoryImpl) CreateTask(ctx context.Context, task *models.Task) (*models.Task, error) {
+	result := r.db.WithContext(ctx).Create(task)
 	if result.Error != nil {
 		return nil, result.Error
 	}
-	return project, nil
+
+	return task, nil
 }
 
 func (r *TaskRepositoryImpl) UpdateTask(ctx context.Context, project *models.Task) (*models.Task, error) {
@@ -55,7 +58,7 @@ func (r *TaskRepositoryImpl) UpdateTask(ctx context.Context, project *models.Tas
 }
 
 func (r *TaskRepositoryImpl) DeleteTask(ctx context.Context, id string) error {
-	result := r.db.WithContext(ctx).Delete(&models.Task{}, id)
+	result := r.db.WithContext(ctx).Delete(&models.Task{}, "id = ?", id)
 	if result.Error != nil {
 		return result.Error
 	}
